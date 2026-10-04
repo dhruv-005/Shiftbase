@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ececeb" />
+    <title>Shiftbase — Bounded Schema Migration Assistant</title>
+    <meta name="description" content="Intelligent schema migration engine." />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Bulletproof Tailwind Engine CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: "#ececeb",
+              ink: "#222222",
+              copy: "#4a4a4a",
+              glass: {
+                line: "rgba(255, 255, 255, 0.36)",
+                sheen: "rgba(255, 255, 255, 0.12)",
+                panel: "rgba(255, 255, 255, 0.65)",
+                dark: "rgba(34, 34, 34, 0.75)",
+              },
+              ruby: {
+                light: "#bd4468",
+                DEFAULT: "#ad314d",
+                dark: "#8c1320",
+                deep: "#501c27",
+              },
+              amethyst: {
+                light: "#c9b5e1",
+                DEFAULT: "#ad80ca",
+                mid: "#9d4f72",
+                dark: "#793246",
+              },
+              terracotta: {
+                light: "#e8703d",
+                DEFAULT: "#dd523c",
+                warm: "#d84736",
+                dark: "#d34239",
+              },
+            }
+          }
+        }
+      }
+    </script>
+    
+    <style type="text/css">
+      /* Custom scrollbars and transitions */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.04);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.18);
+        border-radius: 999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.32);
+      }
+    </style>
+  </head>
+  <body class="bg-[#ececeb] text-[#222222] antialiased selection:bg-[#ad314d] selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

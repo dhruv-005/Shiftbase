@@ -1,0 +1,38 @@
+/* ==========================================================
+   SHIFTBASE - Components & Glass panel Overrides
+   ========================================================== */
+
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
+}
+
+.glass-panel-dark {
+  background: rgba(28, 28, 30, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.glow-ruby {
+  box-shadow: 0 0 16px rgba(173, 49, 77, 0.40) !important;
+}
+
+.glow-amethyst {
+  box-shadow: 0 0 16px rgba(173, 128, 202, 0.40) !important;
+}
+
+.glow-terracotta {
+  box-shadow: 0 0 16px rgba(221, 82, 60, 0.40) !important;
+}
+
+.code-stream {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}

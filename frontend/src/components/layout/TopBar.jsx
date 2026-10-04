@@ -1,0 +1,51 @@
+import React, { useEffect, useState } from 'react';
+import { Menu, Cpu } from 'lucide-react';
+import axios from 'axios';
+
+export default function TopBar({ onToggleSidebar }) {
+  const [healthy, setHealthy] = useState(false);
+  const [aiProvider, setAiProvider] = useState('gemini');
+
+  useEffect(() => {
+    async function checkHealth() {
+      try {
+        const resp = await axios.get('/api/health');
+        if (resp.data.status === 'healthy') {
+          setHealthy(true);
+          setAiProvider(resp.data.ai_provider || 'gemini');
+        }
+      } catch (err) {
+        setHealthy(false);
+      }
+    }
+    checkHealth();
+    const interval = setInterval(checkHealth, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <header className="relative z-20 w-full px-3 sm:px-4 lg:px-8 py-2 sm:py-3 flex items-center justify-between">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button onClick={onToggleSidebar} type="button" className="lg:hidden p-2 rounded-xl bg-white/70 hover:bg-white border border-white/40 text-ink shadow-sm transition" aria-label="Toggle navigation">
+          <Menu className="w-4 h-4" />
+        </button>
+        <div className="hidden sm:flex items-center gap-2">
+          <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-copy">Workspace</span>
+          <span className="text-xs text-ink/40">/</span>
+          <span className="text-[10px] sm:text-xs font-semibold text-ink">Bounded Migration Stage</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <div className="glass-panel-elevated px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs border border-white/50 shadow-sm">
+          <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${healthy ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+          <span className="text-copy font-medium hidden sm:inline">{healthy ? 'Engine Online' : 'Offline'}</span>
+          <span className="text-copy font-medium sm:hidden">{healthy ? 'Online' : 'Off'}</span>
+        </div>
+        <div className="hidden md:flex glass-panel-elevated px-3 py-1.5 rounded-full items-center gap-1.5 text-[11px] font-mono text-copy border border-white/50 shadow-sm">
+          <Cpu className="w-3.5 h-3.5 text-ruby" />
+          <span className="uppercase">{aiProvider}</span>
+        </div>
+      </div>
+    </header>
+  );
+}
