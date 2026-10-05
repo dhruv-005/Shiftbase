@@ -1,9 +1,8 @@
 """
 Shiftbase - AI Agent & LLM Providers
-Integrates Google Gemini (free tier), local Ollama, and a deterministic heuristic fallback.
+Integrates Google Gemini, local Ollama, and enhanced heuristic fallback.
 """
 
-import json
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
@@ -22,149 +21,222 @@ logger = logging.getLogger("shiftbase.ai_agent")
 
 
 class LLMProvider(ABC):
-    """Abstract interface for LLM backends."""
-
     @abstractmethod
     async def generate_response(self, system_prompt: str, user_prompt: str) -> str:
-        """Query the LLM provider and return raw text output."""
         pass
 
 
 class GeminiProvider(LLMProvider):
-    """Google Gemini AI API (Free Tier: 60 RPM)."""
-
     def __init__(self, api_key: str):
         self.api_key = api_key
 
     async def generate_response(self, system_prompt: str, user_prompt: str) -> str:
         if not self.api_key:
-            raise ValueError("Gemini API key is not configured. Set GEMINI_API_KEY in .env")
-
+            raise ValueError("Gemini API key is not configured")
         import google.generativeai as genai
-
         genai.configure(api_key=self.api_key)
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             system_instruction=system_prompt,
-            generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
         )
-        response = await model.generate_content_async(user_prompt)
-        return response.text
+        res = await model.generate_content_async(user_prompt)
+        return res.text
 
 
 class OllamaProvider(LLMProvider):
-    """Local Ollama instance (100% offline, zero-cost)."""
-
     def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3"):
         self.base_url = base_url.rstrip("/")
         self.model = model
 
     async def generate_response(self, system_prompt: str, user_prompt: str) -> str:
-        url = f"{self.base_url}/api/chat"
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            "stream": False,
-            "format": "json",
-            "options": {"temperature": 0.1},
-        }
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(url, json=payload)
+            resp = await client.post(
+                f"{self.base_url}/api/chat",
+                json={
+                    "model": self.model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "stream": False,
+                },
+            )
             resp.raise_for_status()
-            data = resp.json()
-            return data["message"]["content"]
+            return resp.json()["message"]["content"]
 
 
 class FallbackRuleAgent:
     """
-    Deterministic rule-based mapping engine used when LLM is unavailable or offline.
-    Ensures 100% functional zero-cost operation without API keys.
+    Enhanced heuristic mapping engine with:
+    1. Exact name matching
+    2. Hardcoded alias matching
+    3. Substring/prefix/suffix fuzzy matching
+    4. Type-compatible fallback pairing
     """
 
+    # Known aliases: target_field -> (source_field, transformation, params)
+    ALIASES = {
+        "id": ("user_id", "direct_copy", {}),
+        "first_name": ("full_name", "split_string", {"delimiter": " ", "index": 0}),
+        "last_name": ("full_name", "split_string", {"delimiter": " ", "index": 1}),
+        "created_at": ("signup_date", "format_date", {"to_format": "%Y-%m-%dT%H:%M:%SZ"}),
+        "email_address": ("email", "direct_copy", {}),
+        "status": ("account_status", "direct_copy", {}),
+        "total_logins": ("login_count", "to_integer", {}),
+        "profile_summary": ("bio", "truncate", {"max_length": 200}),
+        "joined_at": ("hire_date", "format_date", {"to_format": "%Y-%m-%dT%H:%M:%SZ"}),
+        "annual_salary": ("salary", "to_integer", {}),
+        "team": ("department", "direct_copy", {}),
+        "summary": ("bio", "truncate", {"max_length": 50}),
+    }
+
+    def _normalize(self, name: str) -> str:
+        """Lowercase and strip underscores for comparison."""
+        return name.lower().replace("_", "").replace("-", "")
+
+    def _is_substring_match(self, source_name: str, target_name: str) -> bool:
+        """Check if one field name contains the other."""
+        s = self._normalize(source_name)
+        t = self._normalize(target_name)
+        return s in t or t in s
+
+    def _get_type_cast_rule(self, source_type: str, target_type: str) -> Optional[tuple]:
+        """Determine transformation rule based on type mismatch."""
+        if source_type == target_type:
+            return ("direct_copy", {})
+        if target_type == "integer" and source_type == "string":
+            return ("to_integer", {})
+        if target_type == "float" and source_type == "string":
+            return ("to_float", {})
+        if target_type == "string":
+            return ("to_string", {})
+        if target_type == "integer" and source_type == "float":
+            return ("to_integer", {})
+        return None
+
     def propose_heuristic_mappings(
-        self,
-        source_schema: Dict[str, Any],
-        target_schema: Dict[str, Any],
+        self, source_schema: Dict[str, Any], target_schema: Dict[str, Any]
     ) -> Dict[str, Any]:
         source_fields = {f["name"]: f for f in source_schema.get("fields", [])}
         target_fields = target_schema.get("fields", [])
 
         mappings: List[Dict[str, Any]] = []
-        unmapped_targets: List[str] = []
         mapped_sources = set()
+        unmapped_targets: List[str] = []
         warnings: List[str] = []
 
         for tf in target_fields:
             tname = tf["name"]
-            ttype = tf["type"]
+            ttype = tf.get("type", "string")
 
-            # Exact match
+            # PASS 1: Exact name match
             if tname in source_fields:
                 sf = source_fields[tname]
                 mapped_sources.add(tname)
+                type_rule = self._get_type_cast_rule(sf.get("type", "string"), ttype)
+                rule, params = type_rule if type_rule else ("direct_copy", {})
                 mappings.append({
                     "target_field": tname,
                     "source_field": tname,
-                    "transformation": "direct_copy",
-                    "transformation_params": {},
+                    "transformation": rule,
+                    "transformation_params": params,
                     "confidence": 1.0,
                     "risk_notes": "Exact field name match",
                 })
                 continue
 
-            # Common aliases
-            alias_match = None
-            if tname == "id" and "user_id" in source_fields:
-                alias_match = ("user_id", "direct_copy", {})
-            elif tname == "first_name" and "full_name" in source_fields:
-                alias_match = ("full_name", "split_string", {"delimiter": " ", "index": 0})
-            elif tname == "last_name" and "full_name" in source_fields:
-                alias_match = ("full_name", "split_string", {"delimiter": " ", "index": 1})
-            elif tname in ("created_at", "signup_timestamp") and "signup_date" in source_fields:
-                alias_match = ("signup_date", "format_date", {"to_format": "%Y-%m-%dT%H:%M:%SZ"})
-            elif tname == "email_address" and "email" in source_fields:
-                alias_match = ("email", "direct_copy", {})
-            elif tname == "status" and "account_status" in source_fields:
-                alias_match = ("account_status", "direct_copy", {})
-            elif tname in ("total_logins", "login_count") and "login_count" in source_fields:
-                alias_match = ("login_count", "to_integer", {})
-            elif tname in ("profile_summary", "short_bio") and "bio" in source_fields:
-                alias_match = ("bio", "truncate", {"max_length": tf.get("max_length", 200)})
+            # PASS 2: Hardcoded alias match
+            if tname in self.ALIASES:
+                alias_src, alias_rule, alias_params = self.ALIASES[tname]
+                if alias_src in source_fields:
+                    mapped_sources.add(alias_src)
+                    mappings.append({
+                        "target_field": tname,
+                        "source_field": alias_src,
+                        "transformation": alias_rule,
+                        "transformation_params": alias_params,
+                        "confidence": 0.88,
+                        "risk_notes": f"Matched via alias to '{alias_src}'",
+                    })
+                    continue
 
-            if alias_match:
-                s_name, rule, params = alias_match
-                mapped_sources.add(s_name)
+            # PASS 3: Substring / fuzzy match
+            best_match = None
+            best_score = 0
+            for sname, sf in source_fields.items():
+                if sname in mapped_sources:
+                    continue
+                if self._is_substring_match(sname, tname):
+                    score = len(self._normalize(sname)) + len(self._normalize(tname))
+                    if score > best_score:
+                        best_score = score
+                        best_match = sname
+
+            if best_match:
+                sf = source_fields[best_match]
+                mapped_sources.add(best_match)
+                type_rule = self._get_type_cast_rule(sf.get("type", "string"), ttype)
+                rule, params = type_rule if type_rule else ("direct_copy", {})
                 mappings.append({
                     "target_field": tname,
-                    "source_field": s_name,
+                    "source_field": best_match,
                     "transformation": rule,
                     "transformation_params": params,
-                    "confidence": 0.88,
-                    "risk_notes": f"Matched by heuristic rule to '{s_name}'",
+                    "confidence": 0.75,
+                    "risk_notes": f"Fuzzy matched to '{best_match}' (substring similarity)",
                 })
-            else:
-                unmapped_targets.append(tname)
-                warnings.append(f"Target field '{tname}' could not be matched automatically.")
+                continue
 
+            # PASS 4: Type-compatible fallback (match first unused source field of compatible type)
+            type_match = None
+            for sname, sf in source_fields.items():
+                if sname in mapped_sources:
+                    continue
+                stype = sf.get("type", "string")
+                if self._get_type_cast_rule(stype, ttype) is not None:
+                    type_match = sname
+                    break
+
+            if type_match:
+                sf = source_fields[type_match]
+                mapped_sources.add(type_match)
+                type_rule = self._get_type_cast_rule(sf.get("type", "string"), ttype)
+                rule, params = type_rule if type_rule else ("direct_copy", {})
+                mappings.append({
+                    "target_field": tname,
+                    "source_field": type_match,
+                    "transformation": rule,
+                    "transformation_params": params,
+                    "confidence": 0.55,
+                    "risk_notes": f"Type-compatible fallback to '{type_match}' (verify manually)",
+                })
+                continue
+
+            # No match found
+            unmapped_targets.append(tname)
+            warnings.append(f"Target field '{tname}' could not be matched automatically.")
+
+        # Identify dropped source fields
         unmapped_sources = [name for name in source_fields if name not in mapped_sources]
         for us in unmapped_sources:
             warnings.append(f"Source field '{us}' will be dropped (no matching target).")
+
+        overall_risk = "low"
+        if unmapped_sources or unmapped_targets:
+            overall_risk = "medium"
+        if len(unmapped_targets) > len(target_fields) // 2:
+            overall_risk = "high"
 
         return {
             "mappings": mappings,
             "unmapped_source_fields": unmapped_sources,
             "unmapped_target_fields": unmapped_targets,
             "warnings": warnings,
-            "overall_risk": "medium" if unmapped_sources or unmapped_targets else "low",
+            "overall_risk": overall_risk,
         }
 
 
 class AIAgent:
-    """AI Data Architect coordinating LLM inference and parsing."""
-
     def __init__(self, provider: Optional[LLMProvider] = None):
         self.provider = provider
         self.fallback = FallbackRuleAgent()
@@ -178,52 +250,30 @@ class AIAgent:
         sample_records: Optional[List[Dict[str, Any]]] = None,
         supported_rules: Optional[List[str]] = None,
     ) -> PlanProposalResponse:
-        """Generates structured migration proposal using AI or fallback."""
         src_dict = source_schema.model_dump()
         tgt_dict = target_schema.model_dump()
-
-        user_prompt = build_mapping_user_prompt(
-            source_schema=src_dict,
-            target_schema=tgt_dict,
-            sample_records=sample_records,
-            supported_rules=supported_rules,
-        )
-
-        proposal_data: Optional[Dict[str, Any]] = None
+        proposal_data = None
 
         if self.provider is not None:
             try:
-                logger.info("Requesting migration proposal from AI provider...")
-                raw_response = await self.provider.generate_response(
-                    system_prompt=MAPPING_SYSTEM_PROMPT,
-                    user_prompt=user_prompt,
+                user_prompt = build_mapping_user_prompt(
+                    src_dict, tgt_dict, sample_records, supported_rules
                 )
-                proposal_data = extract_json_from_llm_response(raw_response)
-                logger.info("Successfully parsed AI response.")
+                raw = await self.provider.generate_response(
+                    MAPPING_SYSTEM_PROMPT, user_prompt
+                )
+                proposal_data = extract_json_from_llm_response(raw)
             except Exception as e:
-                logger.warning(f"AI Provider error ({e}). Falling back to heuristic rule engine.")
+                logger.warning(f"LLM failed ({e}), falling back to heuristic")
 
         if proposal_data is None:
-            logger.info("Executing Fallback Rule Agent...")
             proposal_data = self.fallback.propose_heuristic_mappings(src_dict, tgt_dict)
 
-        mappings_list = [
-            FieldMapping(
-                target_field=m["target_field"],
-                source_field=m.get("source_field"),
-                source_fields=m.get("source_fields"),
-                transformation=m.get("transformation", "direct_copy"),
-                transformation_params=m.get("transformation_params", {}),
-                confidence=float(m.get("confidence", 0.9)),
-                risk_notes=m.get("risk_notes"),
-            )
-            for m in proposal_data.get("mappings", [])
-        ]
-
+        mappings = [FieldMapping(**m) for m in proposal_data.get("mappings", [])]
         return PlanProposalResponse(
             plan_id=plan_id,
             version=version,
-            mappings=mappings_list,
+            mappings=mappings,
             unmapped_source_fields=proposal_data.get("unmapped_source_fields", []),
             unmapped_target_fields=proposal_data.get("unmapped_target_fields", []),
             warnings=proposal_data.get("warnings", []),
