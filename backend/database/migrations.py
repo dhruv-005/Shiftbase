@@ -93,6 +93,27 @@ CREATE INDEX IF NOT EXISTS idx_quarantine_exec ON quarantine(execution_id);
 CREATE INDEX IF NOT EXISTS idx_audit_plan ON audit_log(plan_id);
 CREATE INDEX IF NOT EXISTS idx_audit_exec ON audit_log(execution_id);
 CREATE INDEX IF NOT EXISTS idx_runs_plan ON execution_runs(plan_id);
+-- 7. user_sessions: Cookie-based session store
+CREATE TABLE IF NOT EXISTS user_sessions (
+    session_id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    username TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL
+);
+
+-- 8. users: Registered user accounts
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON user_sessions(expires_at);
+
 """
 
 

@@ -8,6 +8,7 @@ from typing import Any, Dict
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request
+from database.repositories.audit_repo import AuditRepository
 from database.repositories.plan_repo import PlanRepository
 from database.repositories.source_repo import SourceRepository
 from models.schema import (
@@ -55,8 +56,9 @@ async def initialize_migration_workspace(
     db = request.app.state.db
     plan_repo = PlanRepository(db)
     source_repo = SourceRepository(db)
+    audit_repo = AuditRepository(db)
     plan_manager = PlanManager(plan_repo)
-    audit_service = AuditService(request.app.state.db)
+    audit_service = AuditService(audit_repo)
 
     # 1. Validate Schemas
     validator = RecordValidator()

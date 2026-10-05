@@ -11,8 +11,12 @@ from models.audit import AuditEntry, AuditTrailResponse
 class AuditService:
     """Orchestrates audit trail creation and queries."""
 
-    def __init__(self, audit_repo: AuditRepository):
-        self.audit_repo = audit_repo
+    def __init__(self, audit_repo_or_db):
+        # Auto-wrap if raw DatabaseConnection is passed
+        if hasattr(audit_repo_or_db, "log_action"):
+            self.audit_repo = audit_repo_or_db
+        else:
+            self.audit_repo = AuditRepository(audit_repo_or_db)
 
     async def log_event(
         self,

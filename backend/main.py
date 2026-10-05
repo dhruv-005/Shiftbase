@@ -21,6 +21,7 @@ from routes.plan_routes import router as plan_router
 from routes.execution_routes import router as execution_router
 from routes.quarantine_routes import router as quarantine_router
 from routes.audit_routes import router as audit_router
+from routes.auth_routes import router as auth_router
 
 # Configure logging: Keep our app clean, mute third-party debug noise
 logging.basicConfig(
@@ -97,7 +98,7 @@ app.include_router(plan_router, prefix="/api/plans", tags=["Migration Plans"])
 app.include_router(execution_router, prefix="/api/migration", tags=["Execution"])
 app.include_router(quarantine_router, prefix="/api/quarantine", tags=["Quarantine"])
 app.include_router(audit_router, prefix="/api/audit", tags=["Audit Trail"])
-
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 
 @app.get("/api/health", tags=["System"])
 async def health_check():
