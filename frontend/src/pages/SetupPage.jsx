@@ -89,7 +89,7 @@ export default function SetupPage() {
         navigate(`/plan/${res.plan_id}`);
       }
     } catch (err) {
-      alert("Invalid JSON format in schemas or sample records: " + err.message);
+      const msg = err.response?.data?.detail || err.message || "Failed to initialize"; alert("Error: " + msg);
     }
   };
 

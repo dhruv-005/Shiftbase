@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import axios from 'axios'
 import App from './App'
 
 import './index.css'
@@ -19,6 +20,13 @@ import './theme/animations.css'
 import './theme/responsive.css'
 import './theme/accessibility.css'
 import './App.css'
+
+// Configure Axios: use VITE_API_URL in production or fallback to live Render backend
+const backendUrl = import.meta.env.VITE_API_URL || 'https://shiftbase.onrender.com';
+axios.defaults.baseURL = backendUrl.replace(/\/$/, '');
+axios.defaults.withCredentials = true;
+
+console.log('Shiftbase API connected to:', axios.defaults.baseURL);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
