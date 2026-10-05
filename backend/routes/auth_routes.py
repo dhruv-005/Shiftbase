@@ -80,7 +80,8 @@ async def signup(request: Request, response: Response, payload: SignupRequest):
         key=SESSION_COOKIE_NAME,
         value=session_id,
         httponly=True,
-        samesite="lax",
+        samesite="none",
+        secure=True,
         max_age=SESSION_DURATION_HOURS * 3600,
         path="/",
     )
@@ -129,7 +130,8 @@ async def login(request: Request, response: Response, payload: LoginRequest):
         key=SESSION_COOKIE_NAME,
         value=session_id,
         httponly=True,
-        samesite="lax",
+        samesite="none",
+        secure=True,
         max_age=SESSION_DURATION_HOURS * 3600,
         path="/",
     )

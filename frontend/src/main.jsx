@@ -21,10 +21,11 @@ import './theme/responsive.css'
 import './theme/accessibility.css'
 import './App.css'
 
-// Configure Axios: use VITE_API_URL in production or fallback to live Render backend
+// Configure Axios with 60s timeout for Render cold-starts
 const backendUrl = import.meta.env.VITE_API_URL || 'https://shiftbase.onrender.com';
 axios.defaults.baseURL = backendUrl.replace(/\/$/, '');
 axios.defaults.withCredentials = true;
+axios.defaults.timeout = 60000; // 60 seconds
 
 console.log('Shiftbase API connected to:', axios.defaults.baseURL);
 
