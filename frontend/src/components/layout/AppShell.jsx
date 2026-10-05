@@ -9,14 +9,17 @@ export default function AppShell({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="stage relative min-h-screen w-full flex flex-col overflow-x-hidden">
+    <div className="stage relative min-h-screen w-full flex flex-col">
       <StageBackground />
       <GrainFilter />
       <EntranceAnimator />
-      <TopBar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      
+      <TopBar onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
+      
       <div className="flex flex-1 w-full relative z-10 min-h-0">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 w-full min-w-0 overflow-y-auto overflow-x-hidden flex flex-col">
+        
+        <main className="flex-1 w-full min-w-0 flex flex-col overflow-y-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
           {children}
         </main>
       </div>

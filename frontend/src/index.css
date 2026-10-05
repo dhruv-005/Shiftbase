@@ -1,13 +1,11 @@
 /* ============================================
-   SHIFTBASE - Master Stylesheet
+   SHIFTBASE - Universal Responsive Stylesheet
    ============================================ */
 
-/* 1. Tailwind Framework */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 2. Design Tokens */
 :root {
   --paper: #ececeb;
   --ink: #222222;
@@ -17,16 +15,11 @@
   --card-ref-h: 554;
   --card-radius: 17;
   --card-count: 3;
-  --gap: clamp(8px, 1.5vw, 23px);
-  --gutter: clamp(14px, 3.6vw, 54px);
-  --content-max: calc(var(--card-count) * var(--card-ref-w) * 1px + (var(--card-count) - 1) * var(--gap));
-  --pad-top: clamp(20px, 9.6vh, 94px);
-  --pad-bottom: clamp(16px, 3vh, 52px);
-  --masthead-gap: clamp(16px, 3vw, 40px);
-  --cards-offset: clamp(14px, 9.4vh, 92px);
+  --gap: clamp(12px, 2vw, 24px);
+  --gutter: clamp(16px, 4vw, 48px);
+  --content-max: 1280px;
 }
 
-/* 3. Base Overrides */
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
@@ -34,6 +27,7 @@
   html {
     min-width: 100%;
     min-height: 100%;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     margin: 0 !important;
@@ -43,54 +37,49 @@
     font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
     text-rendering: geometricPrecision;
-  }
-  @media (min-width: 768px) {
-    html, body { overflow: hidden; height: 100svh; }
-  }
-  @media (max-width: 767px) {
-    html, body { overflow: visible; height: auto; }
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden !important;
   }
 }
 
-/* 4. Glass Panel Components */
+/* Glass Panels with Responsive Padding */
 @layer components {
   .glass-panel-elevated {
-    background: rgba(255, 255, 255, 0.72) !important;
+    background: rgba(255, 255, 255, 0.76) !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06) !important;
   }
   .glass-panel-dark {
-    background: rgba(28, 28, 30, 0.82) !important;
+    background: rgba(26, 26, 28, 0.88) !important;
     backdrop-filter: blur(20px) saturate(190%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3) !important;
     color: #ffffff !important;
   }
   .code-stream {
     font-family: "JetBrains Mono", ui-monospace, monospace !important;
-    font-size: 0.82rem;
+    font-size: clamp(0.72rem, 1.8vw, 0.82rem) !important;
     line-height: 1.5;
   }
 }
 
-/* 5. Stage Layout */
+/* Stage Container - Adapts to viewport height & width */
 .stage {
   position: relative !important;
   isolation: isolate;
   display: flex !important;
   flex-direction: column !important;
-  min-height: 100svh !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  width: 100% !important;
   overflow-x: hidden !important;
 }
-@media (min-width: 768px) {
-  .stage { height: 100svh !important; overflow: hidden !important; }
-}
-@media (max-width: 767px) {
-  .stage { height: auto !important; overflow: visible !important; padding-bottom: 40px; }
-}
+
+/* Background video */
 .stage-motion {
   position: absolute !important;
   inset: 0 !important;
@@ -102,125 +91,101 @@
 }
 .stage-motion--wide { display: block !important; }
 .stage-motion--narrow { display: none !important; }
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .stage-motion--wide { display: none !important; }
   .stage-motion--narrow { display: block !important; }
 }
 .stage-overlay {
   position: absolute !important;
   inset: 0 !important;
-  background: linear-gradient(rgba(236,236,234,0.10), rgba(236,236,234,0.10)) !important;
+  background: linear-gradient(rgba(236,236,234,0.12), rgba(236,236,234,0.12)) !important;
   z-index: 1 !important;
   pointer-events: none !important;
 }
 
-/* 6. Masthead */
+/* Masthead */
 .masthead {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(0, clamp(260px, 32vw, 483px)) !important;
-  gap: var(--masthead-gap) !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, clamp(260px, 34vw, 480px)) !important;
+  gap: clamp(16px, 3vw, 36px) !important;
   align-items: start !important;
   z-index: 2 !important;
-  flex: 0 0 auto !important;
-  width: min(100%, var(--content-max)) !important;
+  width: 100% !important;
+  max-width: var(--content-max) !important;
   margin-inline: auto !important;
 }
-@media (max-width: 767px) {
-  .masthead { grid-template-columns: 1fr !important; gap: 12px !important; padding: 0 8px; }
+@media (max-width: 840px) {
+  .masthead {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
 }
 .headline {
   margin: 0 !important;
   color: #202020 !important;
-  font-size: clamp(22px, min(3.1vw, 5.9vh), 47px) !important;
+  font-size: clamp(22px, 4.2vw, 44px) !important;
   font-weight: 400 !important;
   letter-spacing: 0.015em !important;
-  line-height: 1.223 !important;
-}
-@media (max-width: 767px) {
-  .headline { font-size: clamp(20px, 6vw, 32px) !important; }
+  line-height: 1.2 !important;
 }
 .headline__line {
   display: flex !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   align-items: center !important;
 }
-@media (max-width: 480px) {
-  .headline__line { flex-wrap: wrap !important; }
-}
 .intro {
-  width: 100% !important;
-  margin: 0.34em 0 0 !important;
+  margin: 0.3em 0 0 !important;
   color: var(--copy) !important;
-  font-size: clamp(12px, min(1.36vw, 2.6vh), 20.6px) !important;
+  font-size: clamp(13px, 1.4vw, 18px) !important;
   font-weight: 400 !important;
-  letter-spacing: -0.017em !important;
-  line-height: 1.62 !important;
-}
-@media (max-width: 767px) {
-  .intro { font-size: 13px !important; line-height: 1.5 !important; }
+  line-height: 1.6 !important;
 }
 .dot-word {
   display: inline-block !important;
-  width: 4.851em !important;
-  height: 0.766em !important;
-  margin-left: 0.319em !important;
+  width: 4.85em !important;
+  height: 0.78em !important;
+  margin-left: 0.25em !important;
   color: #ad314d !important;
-  transform: translateY(0.085em) !important;
+  transform: translateY(0.06em) !important;
 }
 
-/* 7. Cards Row */
+/* Cards Grid / Row */
 .cards {
-  flex: 1 1 auto !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: var(--gap) !important;
-  min-height: 0;
-  margin-top: var(--cards-offset) !important;
-  width: min(100%, var(--content-max)) !important;
-  margin-inline: auto !important;
+  width: 100% !important;
+  max-width: var(--content-max) !important;
+  margin: clamp(20px, 4vh, 48px) auto 0 !important;
+  z-index: 2 !important;
 }
-@media (max-width: 767px) {
+@media (max-width: 960px) {
   .cards {
-    flex-direction: column !important;
-    align-items: center !important;
+    grid-template-columns: 1fr !important;
+    max-width: 440px !important;
     gap: 20px !important;
-    margin-top: 24px !important;
-    padding: 0 16px;
   }
 }
 
-/* 8. Card Base */
+/* Card Base Structure */
 .card {
   position: relative !important;
-  flex: 0 0 auto !important;
+  width: 100% !important;
+  aspect-ratio: 429 / 530 !important;
+  min-height: 380px !important;
+  max-height: 540px !important;
+  border-radius: 20px !important;
   overflow: hidden !important;
   border: 1px solid var(--glass-line) !important;
   background-origin: border-box !important;
   color: #fff !important;
-  box-shadow: 0 2px 4px rgba(50, 28, 39, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  box-shadow: 0 4px 12px rgba(50, 28, 39, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  --u: calc(100cqw / 429);
   container-type: inline-size;
 }
-@media (min-width: 768px) {
+@media (max-width: 960px) {
   .card {
-    --card-w: min(
-      (100cqw - (var(--card-count) - 1) * var(--gap)) / var(--card-count),
-      100cqh * var(--card-ref-w) / var(--card-ref-h),
-      var(--card-ref-w) * 1px
-    );
-    width: var(--card-w) !important;
-    aspect-ratio: 429 / 554 !important;
-    border-radius: calc(var(--card-w) * var(--card-radius) / 429) !important;
-    --u: calc(100cqw / 429);
-  }
-}
-@media (max-width: 767px) {
-  .card {
-    --card-w: min(calc(100vw - 48px), 380px);
-    width: var(--card-w) !important;
     aspect-ratio: 429 / 480 !important;
-    border-radius: 16px !important;
-    --u: calc(100cqw / 429);
   }
 }
 .card::before {
@@ -231,21 +196,22 @@
   mix-blend-mode: screen !important;
   pointer-events: none !important;
   background:
-    linear-gradient(102deg, rgba(255,255,255,0.10), transparent 28%, rgba(255,255,255,0.08) 62%, transparent 88%),
-    radial-gradient(ellipse 85% 34% at 54% 7%, rgba(255,255,255,0.24), transparent 72%) !important;
+    linear-gradient(102deg, rgba(255,255,255,0.12), transparent 28%, rgba(255,255,255,0.08) 62%, transparent 88%),
+    radial-gradient(ellipse 85% 34% at 54% 7%, rgba(255,255,255,0.25), transparent 72%) !important;
 }
 
-/* 9. Card Typography */
+/* Card Typography */
 .card__title {
   position: absolute !important;
-  top: 6.3% !important;
+  top: 7% !important;
   left: 0 !important;
   width: 100% !important;
   text-align: center !important;
   color: #fff !important;
-  font-size: calc(22.7 * var(--u)) !important;
+  font-size: clamp(16px, 5.2cqw, 23px) !important;
   font-weight: 500 !important;
   z-index: 4 !important;
+  padding: 0 12px !important;
 }
 .card__metric {
   position: absolute !important;
@@ -257,107 +223,106 @@
   z-index: 4 !important;
 }
 .card__unit {
-  font-size: calc(28 * var(--u)) !important;
+  font-size: clamp(18px, 6cqw, 26px) !important;
   font-weight: 400 !important;
-  margin-left: calc(4 * var(--u)) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  margin-left: 4px !important;
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 .card__caption {
   position: absolute !important;
   left: 0 !important;
   width: 100% !important;
   text-align: center !important;
-  color: rgba(255, 255, 255, 0.84) !important;
-  font-size: calc(19.1 * var(--u)) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  font-size: clamp(14px, 4.4cqw, 19px) !important;
   line-height: 1.35 !important;
   z-index: 4 !important;
+  padding: 0 16px !important;
 }
 
-/* 10. Card Variants */
+/* Card 1: Speed */
 .card--speed {
   background:
-    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255,180,200,0.25), transparent 70%),
-    radial-gradient(circle at 50% 45%, rgba(220,80,110,0.40), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255,180,200,0.28), transparent 70%),
+    radial-gradient(circle at 50% 45%, rgba(220,80,110,0.42), transparent 60%),
     linear-gradient(180deg, #bd4468 0%, #ad355b 38%, #a63b50 72%, #8c1320 100%) !important;
-  background-origin: border-box !important;
 }
-.card--speed .card__metric { top: 48.6% !important; }
-.card--speed .card__caption { top: 64.75% !important; }
+.card--speed .card__metric { top: 48% !important; }
+.card--speed .card__caption { top: 64% !important; }
 .gauge {
   position: absolute !important;
-  top: 27.63% !important;
-  left: 10.5% !important;
-  width: 79% !important;
-  height: 59% !important;
+  top: 26% !important;
+  left: 10% !important;
+  width: 80% !important;
+  height: 60% !important;
   overflow: visible !important;
   z-index: 3 !important;
 }
 
+/* Card 2: Context */
 .card--context {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 15%, rgba(230,210,255,0.30), transparent 70%),
-    radial-gradient(circle at 50% 50%, rgba(173,128,202,0.35), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 15%, rgba(230,210,255,0.32), transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(173,128,202,0.38), transparent 65%),
     linear-gradient(164deg, #c9b5e1 0%, #ad80ca 29%, #9d4f72 64%, #793246 100%) !important;
-  background-origin: border-box !important;
 }
-.card--context .card__title { font-size: calc(23 * var(--u)) !important; line-height: 1.48 !important; }
-.card--context .card__metric { top: 48.0% !important; }
-.card--context .card__caption { top: 65.72% !important; }
+.card--context .card__metric { top: 48% !important; }
+.card--context .card__caption { top: 65% !important; }
 .context-window {
   position: absolute !important;
   z-index: 3 !important;
-  top: 32.4% !important;
-  left: 20.4% !important;
-  width: 59% !important;
-  height: 30.1% !important;
-  border-radius: calc(10 * var(--u)) !important;
-  background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.32) !important;
-  backdrop-filter: blur(calc(9 * var(--u))) saturate(1.08) !important;
-  -webkit-backdrop-filter: blur(calc(9 * var(--u))) saturate(1.08) !important;
+  top: 32% !important;
+  left: 18% !important;
+  width: 64% !important;
+  height: 28% !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.10) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  backdrop-filter: blur(8px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(1.1) !important;
   box-shadow: 0 4px 16px rgba(50, 20, 35, 0.20), inset 0 1px 0 rgba(255,255,255,0.40) !important;
   overflow: hidden !important;
 }
 .context-window__line {
-  height: calc(2 * var(--u)) !important;
-  margin: calc(8 * var(--u)) calc(12 * var(--u)) !important;
-  background: rgba(255, 255, 255, 0.35) !important;
+  height: 3px !important;
+  margin: 6px 12px !important;
+  background: rgba(255, 255, 255, 0.4) !important;
   border-radius: 999px !important;
 }
 .context-window__line--short { width: 45% !important; }
 .context-window__line--med { width: 70% !important; }
 .context-window__line--long { width: 85% !important; }
 
+/* Card 3: Connections */
 .card--connections {
   background:
-    radial-gradient(ellipse 70% 50% at 50% 15%, rgba(255,210,180,0.30), transparent 70%),
-    radial-gradient(circle at 50% 50%, rgba(232,112,61,0.35), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 15%, rgba(255,210,180,0.32), transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(232,112,61,0.38), transparent 60%),
     linear-gradient(177deg, #d84736 0%, #dd523c 24%, #e8703d 52%, #de5641 78%, #d34239 100%) !important;
-  background-origin: border-box !important;
 }
-.card--connections .card__metric { top: 48.5% !important; }
-.card--connections .card__caption { top: 65.1% !important; }
+.card--connections .card__metric { top: 48% !important; }
+.card--connections .card__caption { top: 65% !important; }
 .connections-map {
   position: absolute !important;
-  top: 21.7% !important;
+  top: 22% !important;
   left: 0 !important;
   width: 100% !important;
-  height: 43% !important;
-  opacity: 0.78 !important;
+  height: 42% !important;
+  opacity: 0.8 !important;
   z-index: 3 !important;
   mask-image: linear-gradient(180deg, #000 0%, #000 50%, rgba(0,0,0,0.46) 67%, rgba(0,0,0,0.15) 83%, transparent 96%) !important;
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, rgba(0,0,0,0.46) 67%, rgba(0,0,0,0.15) 83%, transparent 96%) !important;
 }
 
-/* 11. Buttons */
+/* Card Button */
 .learn-more {
   position: absolute !important;
   z-index: 6 !important;
-  top: 83.75% !important;
+  bottom: 8% !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: calc(111 * var(--u)) !important;
-  height: calc(45 * var(--u)) !important;
+  width: min(140px, 40cqw) !important;
+  height: 42px !important;
 }
 .learn-more button, .pill-button {
   display: inline-flex !important;
@@ -367,59 +332,47 @@
   height: 100% !important;
   border: 0 !important;
   border-radius: 999px !important;
-  color: #2d2d2d !important;
-  background: rgba(255, 255, 255, 0.97) !important;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.50) inset, 0 1px 3px rgba(58,25,39,0.08) !important;
-  font-size: calc(14 * var(--u)) !important;
-  font-weight: 500 !important;
+  color: #222222 !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 2px 6px rgba(0,0,0,0.15) !important;
+  font-size: clamp(12px, 3.4cqw, 14px) !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
   transition: transform 0.18s ease, box-shadow 0.18s ease !important;
 }
 .learn-more button:hover, .pill-button:hover {
-  transform: translateY(calc(-2 * var(--u))) !important;
-  box-shadow: 0 8px 20px rgba(58, 25, 39, 0.16) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 12. Grain */
+/* Card Grain */
 .card__grain {
   position: absolute !important;
   z-index: 2 !important;
   inset: -8% !important;
   width: 116% !important;
   height: 116% !important;
-  opacity: 0.46 !important;
+  opacity: 0.4 !important;
   mix-blend-mode: soft-light !important;
   pointer-events: none !important;
 }
 
-/* 13. Animations */
-@keyframes revealUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+/* Animations */
+@keyframes revealUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes cardEstablish { from { opacity: 0; transform: translateY(32px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.entrance-active .headline__line:nth-child(1) { animation: revealUp .84s cubic-bezier(.16,1,.3,1) .08s both; }
-.entrance-active .headline__line:nth-child(2) { animation: revealUp .84s cubic-bezier(.16,1,.3,1) .17s both; }
-.entrance-active .intro { animation: fadeIn .72s cubic-bezier(.22,1,.36,1) .25s both; }
-.entrance-active .card:nth-child(1) { animation: cardEstablish .8s cubic-bezier(.16,1,.3,1) .46s both; }
-.entrance-active .card:nth-child(2) { animation: cardEstablish .8s cubic-bezier(.16,1,.3,1) .58s both; }
-.entrance-active .card:nth-child(3) { animation: cardEstablish .8s cubic-bezier(.16,1,.3,1) .70s both; }
+@keyframes cardEstablish { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.entrance-active .headline__line:nth-child(1) { animation: revealUp .8s cubic-bezier(.16,1,.3,1) .08s both; }
+.entrance-active .headline__line:nth-child(2) { animation: revealUp .8s cubic-bezier(.16,1,.3,1) .16s both; }
+.entrance-active .intro { animation: fadeIn .7s cubic-bezier(.22,1,.36,1) .24s both; }
+.entrance-active .card:nth-child(1) { animation: cardEstablish .75s cubic-bezier(.16,1,.3,1) .4s both; }
+.entrance-active .card:nth-child(2) { animation: cardEstablish .75s cubic-bezier(.16,1,.3,1) .5s both; }
+.entrance-active .card:nth-child(3) { animation: cardEstablish .75s cubic-bezier(.16,1,.3,1) .6s both; }
 
-/* 14. Responsive */
-@media (min-width: 768px) and (max-width: 1180px) and (max-aspect-ratio: 6/7) {
-  .cards { display: grid !important; grid-template-columns: repeat(2, max-content) !important; justify-content: center !important; }
-  .card:last-child { grid-column: 1 / -1; justify-self: center; }
-}
-@media (max-width: 380px) {
-  .card { --card-w: calc(100vw - 32px) !important; aspect-ratio: 429 / 460 !important; }
-  .headline { font-size: 18px !important; }
-}
-
-/* 15. Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .stage-motion { display: none !important; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-/* 16. Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 999px; }
