@@ -7,7 +7,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // "Built for Intelligent Performance" Design System Tokens
         paper: "#ececeb",
         ink: "#222222",
         copy: "#4a4a4a",
@@ -37,41 +36,14 @@ export default {
         },
       },
       fontFamily: {
-        sans: [
-          '"Inter"',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'Roboto',
-          'Helvetica',
-          'Arial',
-          'sans-serif',
-        ],
-        mono: [
-          '"JetBrains Mono"',
-          'ui-monospace',
-          'SFMono-Regular',
-          'Menlo',
-          'Monaco',
-          'Consolas',
-          'monospace',
-        ],
+        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       boxShadow: {
         'card-spatial': '0 2px 4px rgba(50, 28, 39, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.24)',
         'pill-button': '0 1px 0 rgba(255, 255, 255, 0.50) inset, 0 1px 3px rgba(58, 25, 39, 0.08)',
         'pill-hover': '0 8px 20px rgba(58, 25, 39, 0.16)',
         'glass-panel': '0 20px 40px -15px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.5) inset',
-      },
-      animation: {
-        'radar-sweep': 'sweep 4s linear infinite',
-        'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
-      keyframes: {
-        sweep: {
-          '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' },
-        },
       },
     },
   },
