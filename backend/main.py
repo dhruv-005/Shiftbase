@@ -1,4 +1,4 @@
-"""
+﻿"""
 Shiftbase - FastAPI Application Entry Point
 """
 
