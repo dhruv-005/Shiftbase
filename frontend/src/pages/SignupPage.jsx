@@ -26,6 +26,7 @@ export default function SignupPage() {
   };
 
   const displayError = localError || error;
+  const inputClass = "w-full px-4 py-3 rounded-xl bg-white/90 border border-white/20 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amethyst/50 focus:border-amethyst/60 transition-all backdrop-blur-sm";
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
@@ -66,33 +67,29 @@ export default function SignupPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/50 mb-1.5">Username</label>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/70 mb-1.5">Username</label>
                 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required minLength={3}
-                  className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amethyst/40 focus:border-amethyst/50 transition-all backdrop-blur-sm"
-                  placeholder="Choose a username" />
+                  className={inputClass} placeholder="Choose a username" />
               </div>
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/50 mb-1.5">Email</label>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/70 mb-1.5">Email</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amethyst/40 focus:border-amethyst/50 transition-all backdrop-blur-sm"
-                  placeholder="your@email.com" />
+                  className={inputClass} placeholder="your@email.com" />
               </div>
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/50 mb-1.5">Password</label>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/70 mb-1.5">Password</label>
                 <div className="relative">
                   <input type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
-                    className="w-full px-4 py-3 pr-11 rounded-xl bg-white/8 border border-white/12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amethyst/40 focus:border-amethyst/50 transition-all backdrop-blur-sm"
-                    placeholder="Min 6 characters" />
-                  <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-3 text-white/40 hover:text-white/80 transition-colors">
+                    className={inputClass + " pr-11"} placeholder="Min 6 characters" />
+                  <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-3 text-gray-500 hover:text-black transition-colors">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/50 mb-1.5">Confirm Password</label>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/70 mb-1.5">Confirm Password</label>
                 <input type="password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} required
-                  className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amethyst/40 focus:border-amethyst/50 transition-all backdrop-blur-sm"
-                  placeholder="Re-enter password" />
+                  className={inputClass} placeholder="Re-enter password" />
                 {confirmPw && password === confirmPw && (
                   <div className="flex items-center gap-1 mt-1.5 text-[11px] text-emerald-400 font-mono">
                     <CheckCircle2 className="w-3 h-3" /> Passwords match
@@ -100,7 +97,7 @@ export default function SignupPage() {
                 )}
               </div>
               <button type="submit" disabled={loading}
-                className="w-full py-3 rounded-xl bg-white text-ink text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-white/95 transition-all active:scale-[0.98] disabled:opacity-50 mt-2">
+                className="w-full py-3 rounded-xl bg-white text-black text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all active:scale-[0.98] disabled:opacity-50 mt-2">
                 <UserPlus className="w-4 h-4" />
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>

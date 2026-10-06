@@ -13,7 +13,10 @@ export default function AppShell({ children }) {
       <StageBackground />
       <GrainFilter />
       <EntranceAnimator />
-      <TopBar onToggleSidebar={() => setSidebarOpen((p) => !p)} />
+      <TopBar
+        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+        sidebarOpen={sidebarOpen}
+      />
       <div className="flex flex-1 w-full relative z-10 min-h-0">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <main className="flex-1 w-full min-w-0 flex flex-col overflow-y-auto overflow-x-hidden">

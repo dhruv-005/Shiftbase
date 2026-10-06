@@ -9,7 +9,7 @@ export function useAuth() {
   const checkSession = useCallback(async () => {
     try {
       const resp = await axios.get('/api/auth/me', { withCredentials: true });
-      if (resp.data.success) {
+      if (resp.data.success && resp.data.user) {
         setUser(resp.data.user);
       } else {
         setUser(null);
